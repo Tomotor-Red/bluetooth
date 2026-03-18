@@ -1,0 +1,124 @@
+<view class="container">
+  <!-- 状态栏 -->
+  <view class="status-card">
+    <view class="status-row">
+      <view class="status-dot {{connected ? 'dot-connected' : 'dot-disconnected'}}"></view>
+      <text class="status-text">{{connected ? '已连接' : '未连接'}}</text>
+    </view>
+    <text class="device-name" wx:if="{{deviceName}}">设备：{{deviceName}}</text>
+    <text class="log-text">{{statusLog}}</text>
+  </view>
+
+  <!-- 蓝牙操作按钮 -->
+  <view class="section-title">蓝牙管理</view>
+  <view class="ble-buttons">
+    <button class="ble-btn scan-btn" bindtap="startScan" disabled="{{scanning || connected}}">
+      <text class="btn-icon">🔍</text>
+      <text>{{scanning ? '扫描中...' : '扫描设备'}}</text>
+    </button>
+    <button class="ble-btn stop-btn" bindtap="stopScan" disabled="{{!scanning}}">
+      <text class="btn-icon">⏹</text>
+      <text>停止扫描</text>
+    </button>
+    <button class="ble-btn disconnect-btn" bindtap="disconnect" disabled="{{!connected}}">
+      <text class="btn-icon">🔌</text>
+      <text>断开连接</text>
+    </button>
+  </view>
+
+  <!-- 设备列表 -->
+  <view wx:if="{{devices.length > 0}}">
+    <view class="section-title">发现的设备</view>
+    <view class="device-list">
+      <view
+        class="device-item {{connectingId === item.deviceId ? 'connecting' : ''}}"
+        wx:for="{{devices}}"
+        wx:key="deviceId"
+        bindtap="connectDevice"
+        data-id="{{item.deviceId}}"
+        data-name="{{item.name}}"
+      >
+        <view class="device-info">
+          <text class="device-item-name">{{item.name || '未知设备'}}</text>
+          <text class="device-item-id">{{item.deviceId}}</text>
+        </view>
+        <view class="device-rssi">
+          <text>{{item.RSSI}} dBm</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 控制按钮区域 -->
+  <view wx:if="{{connected}}">
+    <view class="section-title">发送控制指令</view>
+    <view class="control-area">
+      <!-- 上方 W -->
+      <view class="control-row">
+        <button
+          class="ctrl-btn btn-w"
+          bindtouchstart="onBtnPress"
+          bindtouchend="onBtnRelease"
+          data-char="w"
+        >W</button>
+      </view>
+      <!-- 中间 A / Q / D -->
+      <view class="control-row">
+        <button
+          class="ctrl-btn btn-a"
+          bindtouchstart="onBtnPress"
+          bindtouchend="onBtnRelease"
+          data-char="a"
+        >A</button>
+        <button
+          class="ctrl-btn btn-q"
+          bindtouchstart="onBtnPress"
+          bindtouchend="onBtnRelease"
+          data-char="q"
+        >Q</button>
+        <button
+          class="ctrl-btn btn-d"
+          bindtouchstart="onBtnPress"
+          bindtouchend="onBtnRelease"
+          data-char="d"
+        >D</button>
+      </view>
+      <!-- 下方 S -->
+      <view class="control-row">
+        <button
+          class="ctrl-btn btn-s"
+          bindtouchstart="onBtnPress"
+          bindtouchend="onBtnRelease"
+          data-char="s"
+        >S</button>
+      </view>
+      <!-- F 单独一行 -->
+      <view class="control-row">
+        <button
+          class="ctrl-btn btn-f"
+          bindtouchstart="onBtnPress"
+          bindtouchend="onBtnRelease"
+          data-char="f"
+        >F</button>
+      </view>
+    </view>
+    <!-- 发送记录 -->
+    <view class="section-title">发送记录</view>
+    <scroll-view class="send-log" scroll-y scroll-into-view="{{lastLogId}}">
+      <view
+        class="log-item"
+        wx:for="{{sendLogs}}"
+        wx:key="id"
+        id="log-{{item.id}}"
+      >
+        <text class="log-char">{{item.char}}</text>
+        <text class="log-time">{{item.time}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 未连接提示 -->
+  <view wx:if="{{!connected && devices.length === 0 && !scanning}}" class="empty-tip">
+    <text>请先扫描并连接蓝牙设备</text>
+  </view>
+</view>
