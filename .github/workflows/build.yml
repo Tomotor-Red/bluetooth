@@ -4,19 +4,23 @@ on:
   push:
     branches: [ main, master ]
     paths:
-      - 'App.js'
+      - 'app.js'
       - 'android/**'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/build.yml'
+      - 'babel.config.js'
+      - 'metro.config.js'
   pull_request:
     branches: [ main, master ]
     paths:
-      - 'App.js'
+      - 'app.js'
       - 'android/**'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/build.yml'
+      - 'babel.config.js'
+      - 'metro.config.js'
   workflow_dispatch:
 
 jobs:
@@ -47,8 +51,13 @@ jobs:
       # 安装依赖
       - name: 安装依赖
         run: |
-          cd android
           npm install
+
+      # 生成 debug.keystore
+      - name: 生成 Debug 签名
+        run: |
+          cd android/app
+          keytool -genkeypair -keystore debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US"
 
       # 给 gradlew 添加执行权限
       - name: 配置 Gradle
